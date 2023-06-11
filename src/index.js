@@ -1,64 +1,30 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createStore } from 'redux';
+import { createStore, bindActionCreators } from 'redux';
+
+import * as actions from './actions';
+import reducer from './reducer';
 
 import './index.css';
 
-
-
-const initialState = { value: 0 };
-
-const reducer = (state = initialState, action) => {
-    switch(action.type) {
-        case "INC":
-            return {
-                ...state,
-                value: state.value + 1
-            };
-        case "DEC":
-            return {
-                ...state,
-                value: state.value - 1
-            };
-        case "RND":
-            return {
-                ...state,
-                value: state.value * action.payload
-            };
-        default:
-            return state;
-    }
-}
-
-const update = () => {
-    document.getElementById("counter").textContent = store.getState().value;
-}
-
-// создаем объект action с помощью специальных функций actionCreators
-const rnd = () => ({ type: "RND", payload: Math.random() * 10 });
-
-
-
-
 const store = createStore(reducer);
 
-store.subscribe(update);
+const {dispatch, subscribe, getState} = store;
 
+const { inc, dec, rnd } = bindActionCreators(actions, dispatch);
 
+const update = () => {
+    document.getElementById("counter").textContent = getState().value;
+}
+subscribe(update);
 
+document.getElementById("inc").addEventListener("click", inc);
 
-document.getElementById("inc").addEventListener("click", () => {
-    // можно создавать объект action сразу при передаче
-    store.dispatch( {type: "INC"} );
-});
-
-document.getElementById("dec").addEventListener("click", () => {
-    store.dispatch( {type: "DEC"} );
-});
+document.getElementById("dec").addEventListener("click", dec);
 
 document.getElementById("rnd").addEventListener("click", () => {
-    // а тут объект action получаем от actionCreators
-    store.dispatch( rnd() );
+    const value = Math.random() * 10;
+    rnd(value);
 });
 
 
